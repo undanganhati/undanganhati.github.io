@@ -20,6 +20,7 @@ const phoneInput = document.querySelector('#recipientPhone');
 const messageInput = document.querySelector('#messageTemplate');
 const linkPreview = document.querySelector('#invitationLink');
 const statusMessage = document.querySelector('#statusMessage');
+const contactPicker = document.querySelector('#contactPicker');
 
 messageInput.value = defaultMessage;
 
@@ -43,6 +44,29 @@ function whatsappNumber(value) {
 
 nameInput.addEventListener('input', updatePreview);
 updatePreview();
+
+// Pemilih kontak hanya tersedia di sejumlah browser HP (misalnya Chrome Android).
+const canPickContacts = 'contacts' in navigator && 'ContactsManager' in window;
+contactPicker.addEventListener('click', async () => {
+  if (!canPickContacts) {
+    statusMessage.textContent = 'Browser ini belum mendukung pemilih kontak. Silakan isi nama dan nomor secara manual.';
+    return;
+  }
+
+  try {
+    const available = await navigator.contacts.getProperties();
+    const properties = ['name', 'tel'].filter((property) => available.includes(property));
+    const contacts = await navigator.contacts.select(properties, { multiple: false });
+    const contact = contacts[0];
+    if (!contact) return;
+    if (contact.name?.[0]) nameInput.value = contact.name[0];
+    if (contact.tel?.[0]) phoneInput.value = contact.tel[0];
+    updatePreview();
+    statusMessage.textContent = 'Kontak sudah dimasukkan. Periksa nomor dan pesan sebelum membuka WhatsApp.';
+  } catch (_) {
+    // Pengguna bisa menutup pemilih kontak tanpa memilih siapa pun.
+  }
+});
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
