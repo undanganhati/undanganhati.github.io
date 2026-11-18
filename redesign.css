@@ -295,7 +295,14 @@ body {
 }
 
 .hint { font-size: .95rem; }
-.gallery-grid { margin-top: 1.4rem; }
+
+/* Galeri 12 foto: rapi 2 kolom di HP dan 3 kolom pada layar lebar. */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 1.4rem;
+}
 
 .gift-section > p:not(.eyebrow),
 .rsvp > p:not(.eyebrow),
@@ -326,6 +333,10 @@ footer h2 { font-size: 2.5rem; }
 
 /* ---------------------- GALERI FOTO PENUH ---------------------- */
 .gallery-grid img {
+  width: 100%;
+  margin: 0 !important;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
   cursor: zoom-in;
   border-radius: 5px;
   transition: transform .2s ease, filter .2s ease;
@@ -397,6 +408,8 @@ footer h2 { font-size: 2.5rem; }
     width: 300px;
     height: 300px;
   }
+
+  .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
   .floral-top-left { left: max(calc(50% - 460px), -20px); }
   .floral-bottom-right { right: max(calc(50% - 480px), -20px); }
