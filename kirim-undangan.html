@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#596554">
+  <title>Kirim Undangan WhatsApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="kirim-undangan.css">
+</head>
+<body>
+  <main class="sender-card">
+    <p class="eyebrow">Undangan Digital</p>
+    <h1>Kirim lewat WhatsApp</h1>
+    <p class="intro">Isi data tamu dan pesan. WhatsApp akan terbuka dengan pesan yang sudah siap—Anda tetap menekan tombol kirim sendiri.</p>
+
+    <form id="senderForm">
+      <label>
+        Nama penerima
+        <input id="recipientName" name="recipientName" autocomplete="name" required placeholder="Contoh: Budi Santoso">
+      </label>
+
+      <label>
+        Nomor WhatsApp
+        <input id="recipientPhone" name="recipientPhone" inputmode="tel" autocomplete="tel" required placeholder="Contoh: 081234567890">
+      </label>
+
+      <label>
+        Pesan
+        <textarea id="messageTemplate" name="messageTemplate" rows="8" required></textarea>
+      </label>
+
+      <p class="help">Gunakan <code>{nama}</code> untuk nama penerima dan <code>{link}</code> untuk tautan undangan personal.</p>
+
+      <div class="preview">
+        <span>Preview tautan</span>
+        <a id="invitationLink" href="https://undanganhati.github.io/" target="_blank" rel="noopener">https://undanganhati.github.io/</a>
+      </div>
+
+      <button type="submit">Buka WhatsApp</button>
+      <p class="status" id="statusMessage" aria-live="polite"></p>
+    </form>
+  </main>
+  <script src="kirim-undangan.js"></script>
+</body>
+</html>
