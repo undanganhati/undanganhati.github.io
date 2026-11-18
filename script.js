@@ -3,6 +3,10 @@ const invitation = $('#invitation');
 const music = $('#bgMusic');
 const musicControl = $('#musicControl');
 
+// Tempel URL Web App Google Apps Script di antara tanda kutip setelah deploy.
+// Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
+const GUESTBOOK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwVlLY9RmnAIIXAMWgXpVCcO8H7FZtyqrtNR8YBKofJEQAgs2333Gvt6I5p5zdbhKAuBg/exec';
+
 function safeGuestName() {
   const name = new URLSearchParams(window.location.search).get('to');
   return name ? name.replace(/[<>]/g, '').trim().slice(0, 80) : 'Bapak/Ibu/Saudara/i';
@@ -44,11 +48,58 @@ document.querySelectorAll('.copy-btn').forEach((button) => button.addEventListen
   setTimeout(() => { button.textContent = original; }, 1800);
 }));
 
+const wishList = $('#wishList');
+
+function showWish(entry, prepend = false) {
+  const item = document.createElement('article');
+  item.className = 'wish';
+  const name = document.createElement('strong');
+  name.textContent = entry.name;
+  const text = document.createElement('p');
+  text.textContent = entry.wish;
+  item.append(name, text);
+  wishList.querySelector('.empty-wishes')?.remove();
+  if (prepend) wishList.prepend(item); else wishList.append(item);
+}
+
+// Mengambil ucapan semua tamu menggunakan JSONP agar kompatibel dengan GitHub Pages.
+function loadRemoteWishes() {
+  if (!GUESTBOOK_ENDPOINT) return;
+  const callbackName = `guestbookCallback_${Date.now()}`;
+  const script = document.createElement('script');
+  window[callbackName] = (response) => {
+    if (response?.ok && Array.isArray(response.entries)) response.entries.forEach((entry) => showWish(entry));
+    script.remove();
+    delete window[callbackName];
+  };
+  script.onerror = () => { script.remove(); delete window[callbackName]; };
+  script.src = `${GUESTBOOK_ENDPOINT}?action=list&callback=${callbackName}`;
+  document.head.append(script);
+}
+
 $('#guestbookForm').addEventListener('submit', (event) => {
-  event.preventDefault(); const data = new FormData(event.currentTarget);
-  const item = document.createElement('article'); item.className = 'wish';
-  const name = document.createElement('strong'); name.textContent = data.get('name');
-  const text = document.createElement('p'); text.textContent = data.get('wish');
-  item.append(name, text); const list = $('#wishList'); list.querySelector('.empty-wishes')?.remove(); list.prepend(item); event.currentTarget.reset();
-  $('#guestbookMessage').textContent = 'Terima kasih. Konfirmasi dan ucapan Anda sudah dicatat di perangkat ini.';
+  event.preventDefault();
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const entry = {
+    name: String(formData.get('name') || '').trim(),
+    guests: String(formData.get('guests') || '1'),
+    attendance: String(formData.get('attendance') || ''),
+    wish: String(formData.get('wish') || '').trim(),
+  };
+
+  showWish(entry, true);
+  form.reset();
+
+  if (!GUESTBOOK_ENDPOINT) {
+    $('#guestbookMessage').textContent = 'Google Sheets belum dihubungkan. Ucapan hanya tampil sementara di perangkat ini.';
+    return;
+  }
+
+  // no-cors diperlukan karena website GitHub Pages dan Apps Script memiliki alamat berbeda.
+  fetch(GUESTBOOK_ENDPOINT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(entry) })
+    .then(() => { $('#guestbookMessage').textContent = 'Terima kasih. Konfirmasi dan ucapan Anda berhasil dikirim.'; })
+    .catch(() => { $('#guestbookMessage').textContent = 'Ucapan tampil di halaman ini, tetapi belum berhasil tersimpan. Silakan coba lagi.'; });
 });
+
+loadRemoteWishes();
