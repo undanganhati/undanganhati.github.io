@@ -103,3 +103,42 @@ $('#guestbookForm').addEventListener('submit', (event) => {
 });
 
 loadRemoteWishes();
+
+// Galeri: tekan foto untuk melihatnya dalam ukuran penuh.
+const galleryImages = document.querySelectorAll('.gallery-grid img');
+if (galleryImages.length) {
+  const lightbox = document.createElement('dialog');
+  lightbox.className = 'gallery-lightbox';
+  const closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.className = 'gallery-lightbox-close';
+  closeButton.setAttribute('aria-label', 'Tutup foto');
+  closeButton.textContent = '×';
+  const fullImage = document.createElement('img');
+  fullImage.alt = 'Foto galeri ukuran penuh';
+  lightbox.append(closeButton, fullImage);
+  document.body.append(lightbox);
+
+  galleryImages.forEach((image, index) => {
+    image.tabIndex = 0;
+    image.setAttribute('role', 'button');
+    image.setAttribute('aria-label', `Lihat foto galeri ${index + 1}`);
+    const openPhoto = () => {
+      fullImage.src = image.currentSrc || image.src;
+      if (typeof lightbox.showModal === 'function') lightbox.showModal();
+      else lightbox.setAttribute('open', '');
+    };
+    image.addEventListener('click', openPhoto);
+    image.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openPhoto(); }
+    });
+  });
+
+  const closePhoto = () => {
+    if (typeof lightbox.close === 'function') lightbox.close();
+    else lightbox.removeAttribute('open');
+    fullImage.removeAttribute('src');
+  };
+  closeButton.addEventListener('click', closePhoto);
+  lightbox.addEventListener('click', (event) => { if (event.target === lightbox) closePhoto(); });
+}
