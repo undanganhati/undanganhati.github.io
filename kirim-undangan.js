@@ -63,8 +63,10 @@ contactPicker.addEventListener('click', async () => {
     if (contact.tel?.[0]) phoneInput.value = contact.tel[0];
     updatePreview();
     statusMessage.textContent = 'Kontak sudah dimasukkan. Periksa nomor dan pesan sebelum membuka WhatsApp.';
-  } catch (_) {
-    // Pengguna bisa menutup pemilih kontak tanpa memilih siapa pun.
+  } catch (error) {
+    // Pengguna bisa menutup pemilih kontak; sejumlah browser juga menolak API ini.
+    if (error?.name === 'AbortError') return;
+    statusMessage.textContent = 'Pemilih kontak tidak tersedia atau diblokir di browser ini. Gunakan Chrome Android versi terbaru, atau isi nomor secara manual.';
   }
 });
 
